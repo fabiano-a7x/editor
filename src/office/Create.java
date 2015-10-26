@@ -360,7 +360,8 @@ public class Create extends javax.swing.JFrame {
     }
     private void cbFontActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbFontActionPerformed
         nomeFont = cbFont.getSelectedItem().toString();
-        edtEditor.setFont(new Font(nomeFont, style, size));                
+        edtEditor.setFont(new Font(nomeFont, style, size));  
+        
     }//GEN-LAST:event_cbFontActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
