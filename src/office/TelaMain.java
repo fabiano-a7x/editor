@@ -27,8 +27,8 @@ public class TelaMain extends javax.swing.JFrame {
         }); 
         lblNew.addMouseListener(new MouseAdapter(){  
             public void mouseClicked(MouseEvent e){  
-                TelaMain.this.dispose();
-                new Create().setVisible(true);
+                 TelaMain.this.dispose();
+                 new Create().setVisible(true);
             }  
         });         
         lblExit.addMouseListener(new MouseAdapter(){  
@@ -60,6 +60,7 @@ public class TelaMain extends javax.swing.JFrame {
         jMenu2 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setForeground(new java.awt.Color(255, 255, 255));
@@ -68,7 +69,7 @@ public class TelaMain extends javax.swing.JFrame {
         label.setForeground(new java.awt.Color(17, 165, 31));
         label.setText("Copyright nenhum direito reservado.");
 
-        lblOpen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/ic_open_1.png"))); // NOI18N
+        lblOpen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/ic_openSmaller.png"))); // NOI18N
         lblOpen.setText("Abrir");
 
         lblHelp.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/ic_help.png"))); // NOI18N
@@ -89,14 +90,15 @@ public class TelaMain extends javax.swing.JFrame {
                 .addComponent(label)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(117, 117, 117)
-                        .addComponent(lblOpen))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(100, 100, 100)
-                        .addComponent(lblNew)))
-                .addGap(168, 168, 168)
+                        .addComponent(lblNew)
+                        .addGap(168, 168, 168))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                        .addGap(122, 122, 122)
+                        .addComponent(lblOpen, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblHelp)
                     .addComponent(lblExit))
@@ -107,15 +109,15 @@ public class TelaMain extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(119, 119, 119)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lblOpen)
-                            .addComponent(lblHelp))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 107, Short.MAX_VALUE)
-                        .addComponent(lblNew, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lblExit)))
+                        .addComponent(lblExit))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(106, 106, 106)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblHelp)
+                            .addComponent(lblOpen))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 114, Short.MAX_VALUE)
+                        .addComponent(lblNew, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(52, 52, 52)
                 .addComponent(label)
                 .addContainerGap())
