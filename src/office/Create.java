@@ -11,6 +11,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.LayoutManager;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -23,18 +25,33 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextPane;
 import javax.swing.JViewport;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
+import javax.swing.plaf.ComponentUI;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Document;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+import javax.swing.text.StyledDocument;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
 
 
 
@@ -73,13 +90,51 @@ public class Create extends javax.swing.JFrame {
         }
         cbFontSize.setSelectedIndex(8);
         cbFont.setSelectedIndex(2);
-        edtEditor.setContentType("text/html");  
         tpAbas2.add(plAbas);
         tpAbas2.setTabComponentAt(tpAbas2.indexOfComponent(plAbas), getTitlePanel(tpAbas2, plAbas, "arquivo1"));
         this.setSize(650, 700); 
         tpAbas2.setSize(640, 690);
         tpAbas2.addTab("+", new JLabel());
                 
+                 
+                final UndoManager undo = new UndoManager();                
+                Document doc = getEditor().getDocument();;                
+                // Ouve eventos de desfazer e refazer
+                doc.addUndoableEditListener(new UndoableEditListener() {
+                    public void undoableEditHappened(UndoableEditEvent evt) {
+                       undo.addEdit(evt.getEdit());                                               
+                    }
+                });
+                   lblDesfazer.addActionListener(
+                   new ActionListener(){
+                      public void actionPerformed(ActionEvent e){
+                        try{
+                           
+                           if(undo.canUndo()){                               
+                               undo.undo();
+                              
+                           }
+                        } 
+                        catch(CannotUndoException cue){
+                           // possiveis erros são tratados aqui 
+                        }
+                      }
+                   });
+                   lblRefazer.addActionListener(
+                   new ActionListener(){
+                      public void actionPerformed(ActionEvent e){
+                        try{
+                           
+                           if(undo.canRedo()){
+                             undo.redo();
+                           }
+                        } 
+                        catch(CannotUndoException cue){
+                           // possiveis erros são tratados aqui 
+                        }
+                      }
+                   });
+
         tpAbas2.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
@@ -91,16 +146,31 @@ public class Create extends javax.swing.JFrame {
                 }
                 if (count > 10) {
                     JOptionPane.showMessageDialog(rootPane, "No máximo 10 abas!");
-                }else{
+                }else{                                       
+                    StyleContext context = new StyleContext();
+                    StyledDocument document = new DefaultStyledDocument(context);
+                    SimpleAttributeSet attributes = new SimpleAttributeSet();
+                    StyleConstants.setBold(attributes, true);
+                    StyleConstants.setItalic(attributes, true);
+                    StyleConstants.setForeground(attributes, Color.red);
+                    StyleConstants.setFontSize(attributes, 44);
+                    StyleConstants.setUnderline(attributes, true);
+                    
                     
                     JPanel panel = new JPanel();
-                    panel.setOpaque(false);                  
-                    JEditorPane pane = new JEditorPane();   
-                    pane.setContentType("text/html"); 
+                    panel.setOpaque(false);       
+                    JTextPane pane = new JTextPane();                    
+                                                            
+                    
+                    try {
+                        document.insertString(document.getLength(), "Hello www.java2s.com", attributes);
+                    } catch (BadLocationException ex) {
+                        Logger.getLogger(Create.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                     
                     panel.add(pane);
-
-                    JScrollPane jScrollPane3 = new JScrollPane(); 
+                    
+                    JScrollPane jScrollPane3 = new JScrollPane(pane); 
                     jScrollPane3.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
                     jScrollPane3.setViewportView(pane);
                     javax.swing.GroupLayout panelLayout = new javax.swing.GroupLayout(panel);
@@ -126,15 +196,62 @@ public class Create extends javax.swing.JFrame {
                     tpAbas2.setTabComponentAt(tpAbas2.indexOfComponent(panel), getTitlePanel(tpAbas2, panel, "arquivo"+tpAbas2.getTabCount()));
                     
                     tpAbas2.addTab("+", new JLabel());
+                    tpAbas2.setSelectedIndex(tpAbas2.getTabCount()-2);
+                    
+                final UndoManager[] undo = new UndoManager[10];               
+                undo[tpAbas2.getSelectedIndex()] = new UndoManager();                
+                final Document[] doc = new Document[10];
+                doc[tpAbas2.getSelectedIndex()] = getEditor().getDocument();
+
+                // Ouve eventos de desfazer e refazer
+                doc[tpAbas2.getSelectedIndex()].addUndoableEditListener(new UndoableEditListener() {
+                    public void undoableEditHappened(UndoableEditEvent evt) {
+                       undo[tpAbas2.getSelectedIndex()].addEdit(evt.getEdit());                                               
+                    }
+                });
+                   lblDesfazer.addActionListener(
+                   new ActionListener(){
+                      public void actionPerformed(ActionEvent e){
+                        try{
+                           if (undo[tpAbas2.getSelectedIndex()] == null) {
+                                undo[tpAbas2.getSelectedIndex()] = new UndoManager();  
+                           }
+                           if(undo[tpAbas2.getSelectedIndex()].canUndo()){                               
+                               undo[tpAbas2.getSelectedIndex()].undo();
+                              
+                           }
+                        } 
+                        catch(CannotUndoException cue){
+                           // possiveis erros são tratados aqui 
+                        }
+                      }
+                   });
+                   lblRefazer.addActionListener(
+                   new ActionListener(){
+                      public void actionPerformed(ActionEvent e){
+                        try{
+                           if (undo[tpAbas2.getSelectedIndex()] == null) {
+                                undo[tpAbas2.getSelectedIndex()] = new UndoManager();  
+                           }
+                           if(undo[tpAbas2.getSelectedIndex()].canRedo()){
+                             undo[tpAbas2.getSelectedIndex()].redo();
+                           }
+                        } 
+                        catch(CannotUndoException cue){
+                           // possiveis erros são tratados aqui 
+                        }
+                      }
+                   });
                 }
             }
-            
+
         }
-    });
-     
 
-    }
-
+    });   
+        
+}
+    
+   
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -145,17 +262,17 @@ public class Create extends javax.swing.JFrame {
     private void initComponents() {
 
         plAbas = new javax.swing.JPanel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        edtEditor = new javax.swing.JEditorPane();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tpEditor = new javax.swing.JTextPane();
         jPanel2 = new javax.swing.JPanel();
         jToolBar2 = new javax.swing.JToolBar();
         btn = new javax.swing.JButton();
         jSeparator5 = new javax.swing.JToolBar.Separator();
         btnSalvar = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JToolBar.Separator();
-        jButton3 = new javax.swing.JButton();
+        lblDesfazer = new javax.swing.JButton();
         jSeparator9 = new javax.swing.JToolBar.Separator();
-        jButton2 = new javax.swing.JButton();
+        lblRefazer = new javax.swing.JButton();
         jSeparator10 = new javax.swing.JToolBar.Separator();
         cbFont = new javax.swing.JComboBox();
         jSeparator2 = new javax.swing.JToolBar.Separator();
@@ -176,23 +293,26 @@ public class Create extends javax.swing.JFrame {
 
         plAbas.setBackground(new java.awt.Color(234, 234, 234));
 
-        jScrollPane2.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        jScrollPane2.setViewportView(edtEditor);
+        jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        jScrollPane1.setViewportBorder(javax.swing.BorderFactory.createCompoundBorder());
+
+        tpEditor.setMaximumSize(new java.awt.Dimension(300, 300));
+        jScrollPane1.setViewportView(tpEditor);
 
         javax.swing.GroupLayout plAbasLayout = new javax.swing.GroupLayout(plAbas);
         plAbas.setLayout(plAbasLayout);
         plAbasLayout.setHorizontalGroup(
             plAbasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(plAbasLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, plAbasLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 543, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 543, Short.MAX_VALUE)
                 .addContainerGap())
         );
         plAbasLayout.setVerticalGroup(
             plAbasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(plAbasLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, plAbasLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -232,18 +352,18 @@ public class Create extends javax.swing.JFrame {
         jToolBar2.add(btnSalvar);
         jToolBar2.add(jSeparator1);
 
-        jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/ic_undo_icon.png"))); // NOI18N
-        jButton3.setFocusable(false);
-        jButton3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton3.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jToolBar2.add(jButton3);
+        lblDesfazer.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/ic_undo_icon.png"))); // NOI18N
+        lblDesfazer.setFocusable(false);
+        lblDesfazer.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lblDesfazer.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar2.add(lblDesfazer);
         jToolBar2.add(jSeparator9);
 
-        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/ic_redo_icon.png"))); // NOI18N
-        jButton2.setFocusable(false);
-        jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jToolBar2.add(jButton2);
+        lblRefazer.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/ic_redo_icon.png"))); // NOI18N
+        lblRefazer.setFocusable(false);
+        lblRefazer.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lblRefazer.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar2.add(lblRefazer);
         jToolBar2.add(jSeparator10);
 
         cbFont.setToolTipText("família da fonte");
@@ -355,32 +475,27 @@ public class Create extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     public void setColor(Color color,java.awt.event.ActionEvent evt){       
-       edtEditor.setForeground(Color.ORANGE);        
+       tpEditor.setForeground(Color.ORANGE);        
        colorSelect = color;        
     }
+   
     private void cbFontActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbFontActionPerformed
         nomeFont = cbFont.getSelectedItem().toString();
-        edtEditor.setFont(new Font(nomeFont, style, size));  
-        
+        tpEditor.setFont(new Font(nomeFont, style, size));          
     }//GEN-LAST:event_cbFontActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         JColorChooser jc = new JColorChooser();                                   
-        colorSelect = jc.showDialog(this,"Selecione uma cor:",Color.black);
-        
-        JPanel p =  (JPanel) tpAbas2.getComponentAt(tpAbas2.getSelectedIndex());
-        Component[] x = p.getComponents();
-        JScrollPane scroll =  (JScrollPane) x[0];
-        JViewport port = (JViewport) scroll.getComponent(0);
-        edtEditor = (JEditorPane) port.getComponent(0);               
-        edtEditor.setForeground(colorSelect);
+        colorSelect = jc.showDialog(this,"Selecione uma cor:",colorSelect);
+        tpEditor = getEditor();                     
+        tpEditor.setForeground(colorSelect);
     }//GEN-LAST:event_jButton1ActionPerformed
     public String colorHexString(Color color) {
         return "#" + Integer.toHexString(color.getRGB() & 0x00ffffff);
     }
     private void cbFontSizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbFontSizeActionPerformed
         size = (int) cbFontSize.getSelectedItem();
-        edtEditor.setFont(new Font(nomeFont, style, size));
+        tpEditor.setFont(new Font(nomeFont, style, size));
                 
     }//GEN-LAST:event_cbFontSizeActionPerformed
 
@@ -392,7 +507,8 @@ public class Create extends javax.swing.JFrame {
         try{
             
             txt = new FileWriter(new File(fc.getSelectedFile().getAbsolutePath()+".txt"));
-            txt.write(edtEditor.getText());
+            tpEditor = getEditor();
+            txt.write(tpEditor.getText());
             txt.close();
             JOptionPane.showMessageDialog(this,"Salvo com sucesso!");
         }catch(Exception e){
@@ -412,41 +528,43 @@ public class Create extends javax.swing.JFrame {
                  txt += str + "\n";                 
              }
             in.close();
-            JPanel p =  (JPanel) tpAbas2.getComponentAt(tpAbas2.getSelectedIndex());
-            Component[] x = p.getComponents();
-            JScrollPane scroll =  (JScrollPane) x[0];
-            JViewport port = (JViewport) scroll.getComponent(0);
-            edtEditor = (JEditorPane) port.getComponent(0);                           
-            edtEditor.setText(txt);
+            tpEditor = getEditor();
+            tpEditor.setText(txt);
          } catch (FileNotFoundException ex) {
              Logger.getLogger(Create.class.getName()).log(Level.SEVERE, null, ex);
          } catch (IOException ex) {
              Logger.getLogger(Create.class.getName()).log(Level.SEVERE, null, ex);
          }
     }//GEN-LAST:event_btnActionPerformed
-
+    public JTextPane getEditor(){
+        JPanel p =  (JPanel) tpAbas2.getComponentAt(tpAbas2.getSelectedIndex());
+        Component[] x = p.getComponents();
+        JScrollPane scroll =  (JScrollPane) x[0];
+        JViewport port = (JViewport) scroll.getComponent(0);
+        return (JTextPane) port.getComponent(0);                           
+    }
     private void btnNegritoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNegritoActionPerformed
         if (btnNegrito.isSelected()) {            
-            edtEditor.setFont(new Font(nomeFont,Font.BOLD, size));
+            tpEditor.setFont(new Font(nomeFont,Font.BOLD, size));
         }else{
-            edtEditor.setFont(new Font(nomeFont,Font.PLAIN, size));
+            tpEditor.setFont(new Font(nomeFont,Font.PLAIN, size));
         }               
     }//GEN-LAST:event_btnNegritoActionPerformed
 
     private void btnItalicoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnItalicoActionPerformed
         if (btnItalico.isSelected()) {            
-            edtEditor.setFont(new Font(nomeFont,Font.ITALIC, size));
+            tpEditor.setFont(new Font(nomeFont,Font.ITALIC, size));
         }else{
-            edtEditor.setFont(new Font(nomeFont,Font.PLAIN, size));
+            tpEditor.setFont(new Font(nomeFont,Font.PLAIN, size));
         }
             
     }//GEN-LAST:event_btnItalicoActionPerformed
 
     private void btnSublinhadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSublinhadoActionPerformed
         if (btnSublinhado.isSelected()) {            
-            JOptionPane.showMessageDialog(rootPane, edtEditor.getText().replace( edtEditor.getText(), "<u>"+ edtEditor.getText()+"</u>"));             
+            JOptionPane.showMessageDialog(rootPane, tpEditor.getText().replace( tpEditor.getText(), "<u>"+ tpEditor.getText()+"</u>"));             
         }else{                    
-            edtEditor.setFont(new Font(nomeFont,Font.PLAIN, size));
+            tpEditor.setFont(new Font(nomeFont,Font.PLAIN, size));
         }         
     }//GEN-LAST:event_btnSublinhadoActionPerformed
     private static JPanel getTitlePanel(final JTabbedPane tabbedPane, final JPanel panel, String title){
@@ -509,15 +627,12 @@ public class Create extends javax.swing.JFrame {
     private javax.swing.JToggleButton btnSublinhado;
     private javax.swing.JComboBox cbFont;
     private javax.swing.JComboBox cbFontSize;
-    private javax.swing.JEditorPane edtEditor;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JToolBar.Separator jSeparator10;
     private javax.swing.JToolBar.Separator jSeparator2;
@@ -529,8 +644,11 @@ public class Create extends javax.swing.JFrame {
     private javax.swing.JToolBar.Separator jSeparator8;
     private javax.swing.JToolBar.Separator jSeparator9;
     private javax.swing.JToolBar jToolBar2;
+    private javax.swing.JButton lblDesfazer;
+    private javax.swing.JButton lblRefazer;
     private javax.swing.JPanel plAbas;
     private javax.swing.JTabbedPane tpAbas2;
+    private javax.swing.JTextPane tpEditor;
     // End of variables declaration//GEN-END:variables
      
 }
