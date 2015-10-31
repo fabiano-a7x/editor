@@ -62,7 +62,12 @@ import javax.swing.undo.UndoManager;
 public class Create extends javax.swing.JFrame {    
      private Color colorSelect = Color.BLACK;
      private String nomeFont = "Arial";
-   
+     private  StyleContext context = new StyleContext();
+     private  StyledDocument document = new DefaultStyledDocument(context);
+     private boolean bold = false;
+     private boolean under = false;
+     private boolean italic = false;
+     
     /**
      * Creates new form Create
      */
@@ -147,26 +152,13 @@ public class Create extends javax.swing.JFrame {
                 if (count > 10) {
                     JOptionPane.showMessageDialog(rootPane, "No máximo 10 abas!");
                 }else{                                       
-                    StyleContext context = new StyleContext();
-                    StyledDocument document = new DefaultStyledDocument(context);
-                    SimpleAttributeSet attributes = new SimpleAttributeSet();
-                    StyleConstants.setBold(attributes, true);
-                    StyleConstants.setItalic(attributes, true);
-                    StyleConstants.setForeground(attributes, Color.red);
-                    StyleConstants.setFontSize(attributes, 44);
-                    StyleConstants.setUnderline(attributes, true);
+                   
                     
                     
                     JPanel panel = new JPanel();
                     panel.setOpaque(false);       
                     JTextPane pane = new JTextPane();                    
-                                                            
-                    
-                    try {
-                        document.insertString(document.getLength(), "Hello www.java2s.com", attributes);
-                    } catch (BadLocationException ex) {
-                        Logger.getLogger(Create.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                                                                                                  
                     
                     panel.add(pane);
                     
@@ -247,8 +239,7 @@ public class Create extends javax.swing.JFrame {
 
         }
 
-    });   
-        
+    });       
 }
     
    
@@ -297,6 +288,13 @@ public class Create extends javax.swing.JFrame {
         jScrollPane1.setViewportBorder(javax.swing.BorderFactory.createCompoundBorder());
 
         tpEditor.setMaximumSize(new java.awt.Dimension(300, 300));
+        tpEditor.setSelectedTextColor(new java.awt.Color(3, 3, 3));
+        tpEditor.setSelectionColor(new java.awt.Color(163, 246, 213));
+        tpEditor.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                tpEditorKeyPressed(evt);
+            }
+        });
         jScrollPane1.setViewportView(tpEditor);
 
         javax.swing.GroupLayout plAbasLayout = new javax.swing.GroupLayout(plAbas);
@@ -481,22 +479,75 @@ public class Create extends javax.swing.JFrame {
    
     private void cbFontActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbFontActionPerformed
         nomeFont = cbFont.getSelectedItem().toString();
-        tpEditor.setFont(new Font(nomeFont, style, size));          
+        try{
+            styleFont(bold,under,italic,nomeFont,colorSelect,size,1);   
+        }catch(ArrayIndexOutOfBoundsException e){
+            
+        }        
     }//GEN-LAST:event_cbFontActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         JColorChooser jc = new JColorChooser();                                   
-        colorSelect = jc.showDialog(this,"Selecione uma cor:",colorSelect);
-        tpEditor = getEditor();                     
-        tpEditor.setForeground(colorSelect);
+        colorSelect = jc.showDialog(this,"Selecione uma cor:",colorSelect);        
+        styleFont(bold,under,italic,nomeFont,colorSelect,size,1);
     }//GEN-LAST:event_jButton1ActionPerformed
     public String colorHexString(Color color) {
         return "#" + Integer.toHexString(color.getRGB() & 0x00ffffff);
     }
+    public void styleFont(boolean bold, boolean under, boolean italic,String fontFamaly,Color color, int size,int tipo){        
+        JTextPane tp = getEditor();
+        String textSelected = null;
+        int count = 0;
+        int start = 0;
+        int end = 0;
+        try{
+            end = tp.getSelectionEnd();
+            start = tp.getSelectionStart();        
+            count = tp.getSelectedText().length();
+            textSelected= tp.getSelectedText();            
+        }catch(NullPointerException e){
+            
+        }
+               
+        SimpleAttributeSet attributes = new SimpleAttributeSet();                       
+        StyleConstants.setBold(attributes, bold);
+        StyleConstants.setUnderline(attributes, under);  
+        StyleConstants.setItalic(attributes, italic);
+        StyleConstants.setFirstLineIndent(attributes, 400);
+        if(tipo == 1){
+            StyleConstants.setFontFamily(attributes, fontFamaly);
+            StyleConstants.setForeground(attributes,color);
+            StyleConstants.setFontSize(attributes, size);         
+        }       
+        if (textSelected != null) {            
+            try {                                           
+                tp.getStyledDocument().remove(start,count);              
+                
+            } catch (BadLocationException ex) {
+                Logger.getLogger(Create.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            try {
+                 tp.getStyledDocument().insertString(start,textSelected , attributes);
+                 tp.select(start, end);
+                 tp.setSelectedTextColor(color);                                  
+            } catch (BadLocationException ex) {
+                 Logger.getLogger(Create.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }else{            
+            try {
+                 tp.getStyledDocument().insertString(tp.getStyledDocument().getLength()," " , attributes);
+            } catch (BadLocationException ex) {
+                 Logger.getLogger(Create.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }        
+    }
     private void cbFontSizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbFontSizeActionPerformed
         size = (int) cbFontSize.getSelectedItem();
-        tpEditor.setFont(new Font(nomeFont, style, size));
-                
+        try{
+            styleFont(bold,under,italic,nomeFont,colorSelect,size,1);   
+        }catch(ArrayIndexOutOfBoundsException e){
+            
+        } 
     }//GEN-LAST:event_cbFontSizeActionPerformed
 
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
@@ -544,29 +595,41 @@ public class Create extends javax.swing.JFrame {
         return (JTextPane) port.getComponent(0);                           
     }
     private void btnNegritoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNegritoActionPerformed
+    
         if (btnNegrito.isSelected()) {            
-            tpEditor.setFont(new Font(nomeFont,Font.BOLD, size));
+            bold = true;
+            styleFont(bold,under,italic,nomeFont,colorSelect,size,2);
         }else{
-            tpEditor.setFont(new Font(nomeFont,Font.PLAIN, size));
-        }               
+            bold = true;
+            styleFont(bold,under,italic,nomeFont,colorSelect,size,2);            
+        }                         
     }//GEN-LAST:event_btnNegritoActionPerformed
 
     private void btnItalicoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnItalicoActionPerformed
         if (btnItalico.isSelected()) {            
-            tpEditor.setFont(new Font(nomeFont,Font.ITALIC, size));
+            italic = true;
+            styleFont(bold,under,italic,nomeFont,colorSelect,size,2);
         }else{
-            tpEditor.setFont(new Font(nomeFont,Font.PLAIN, size));
+            italic = true;
+            styleFont(bold,under,italic,nomeFont,colorSelect,size,2);            
         }
             
     }//GEN-LAST:event_btnItalicoActionPerformed
-
+   
     private void btnSublinhadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSublinhadoActionPerformed
-        if (btnSublinhado.isSelected()) {            
-            JOptionPane.showMessageDialog(rootPane, tpEditor.getText().replace( tpEditor.getText(), "<u>"+ tpEditor.getText()+"</u>"));             
-        }else{                    
-            tpEditor.setFont(new Font(nomeFont,Font.PLAIN, size));
-        }         
+       if(btnSublinhado.isSelected()){
+           under = true;
+           styleFont(bold,under,italic,nomeFont,colorSelect,size,2);
+       }else{
+           under = false;
+           styleFont(bold,under,italic,nomeFont,colorSelect,size,3);
+       }
     }//GEN-LAST:event_btnSublinhadoActionPerformed
+
+    private void tpEditorKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tpEditorKeyPressed
+        // TODO add your handling code here:
+        JOptionPane.showMessageDialog(rootPane, evt.getKeyChar());
+    }//GEN-LAST:event_tpEditorKeyPressed
     private static JPanel getTitlePanel(final JTabbedPane tabbedPane, final JPanel panel, String title){
          JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
          titlePanel.setOpaque(false);
