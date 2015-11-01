@@ -13,6 +13,8 @@ import java.awt.GraphicsEnvironment;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -24,6 +26,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -93,7 +96,7 @@ public class Create extends javax.swing.JFrame {
             }
             cbFontSize.addItem(i);
         }
-        cbFontSize.setSelectedIndex(8);
+        cbFontSize.setSelectedIndex(12);
         cbFont.setSelectedIndex(2);
         tpAbas2.add(plAbas);
         tpAbas2.setTabComponentAt(tpAbas2.indexOfComponent(plAbas), getTitlePanel(tpAbas2, plAbas, "arquivo1"));
@@ -157,7 +160,7 @@ public class Create extends javax.swing.JFrame {
                     
                     JPanel panel = new JPanel();
                     panel.setOpaque(false);       
-                    JTextPane pane = new JTextPane();                    
+                    final JTextPane pane = new JTextPane();                    
                                                                                                   
                     
                     panel.add(pane);
@@ -189,7 +192,22 @@ public class Create extends javax.swing.JFrame {
                     
                     tpAbas2.addTab("+", new JLabel());
                     tpAbas2.setSelectedIndex(tpAbas2.getTabCount()-2);
-                    
+                    pane.addKeyListener(new KeyListener() {
+
+                        @Override
+                        public void keyTyped(KeyEvent e) {
+                                                     
+                        }                               
+                        @Override
+                        public void keyReleased(KeyEvent e) {
+                            Create.this.keyReleased(e);  
+                        }
+                         @Override
+                        public void keyPressed(KeyEvent evt  ) {
+                            Create.this.keyPressed(evt);
+                        }
+
+                    });
                 final UndoManager[] undo = new UndoManager[10];               
                 undo[tpAbas2.getSelectedIndex()] = new UndoManager();                
                 final Document[] doc = new Document[10];
@@ -293,6 +311,9 @@ public class Create extends javax.swing.JFrame {
         tpEditor.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 tpEditorKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tpEditorKeyReleased(evt);
             }
         });
         jScrollPane1.setViewportView(tpEditor);
@@ -508,6 +529,7 @@ public class Create extends javax.swing.JFrame {
         }catch(NullPointerException e){
             
         }
+        
                
         SimpleAttributeSet attributes = new SimpleAttributeSet();                       
         StyleConstants.setBold(attributes, bold);
@@ -625,11 +647,143 @@ public class Create extends javax.swing.JFrame {
            styleFont(bold,under,italic,nomeFont,colorSelect,size,3);
        }
     }//GEN-LAST:event_btnSublinhadoActionPerformed
-
+    int last = 0;
     private void tpEditorKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tpEditorKeyPressed
-        // TODO add your handling code here:
-        JOptionPane.showMessageDialog(rootPane, evt.getKeyChar());
+        keyPressed(evt);
     }//GEN-LAST:event_tpEditorKeyPressed
+    public void keyPressed(java.awt.event.KeyEvent evt) { 
+        JTextPane tp = getEditor();       
+        if (evt.getKeyCode() == 9) {
+            String lastLetter = null;
+            try{
+                lastLetter = Character.toString(tp.getText().charAt(tp.getText().length()-1));
+            }catch(StringIndexOutOfBoundsException e){
+                
+            }catch(NullPointerException ke){
+            
+            }            
+            if (lastLetter != null) {
+                if (!lastLetter.equals(" ")&&last != 9&&!lastLetter.equals("<")&&!lastLetter.equals(">")&&!lastLetter.equals(")")&&!lastLetter.equals("(")&&!lastLetter.equals("|")&&!lastLetter.equals("+")) {                    
+                    String text = tp.getText();
+                    String[] lastWord = text.split("[" + Pattern.quote(" \n/>=<)(") + "]");
+                    String word = lastWord[lastWord.length-1];                    
+                    String wordTrim = word.trim();
+                    int start = text.lastIndexOf(wordTrim);
+                    SimpleAttributeSet others = new SimpleAttributeSet(); 
+                    if(wordTrim.equals("for")){
+                        try {                                           
+                           tp.getStyledDocument().remove(start,word.length());              
+                        } catch (BadLocationException ex) {
+                           Logger.getLogger(Create.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        try {
+                             tp.getStyledDocument().insertString(start,"for(int i = 0;i<= 10;i++){ }", others);                                                                                                 
+                        } catch (BadLocationException ex) {
+                             Logger.getLogger(Create.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                          evt.consume();
+                    }else if(wordTrim.equals("if")){
+                        try {                                           
+                           tp.getStyledDocument().remove(start,word.length());              
+                        } catch (BadLocationException ex) {
+                           Logger.getLogger(Create.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        try {
+                             tp.getStyledDocument().insertString(start,"if(true){ }", others);                                                                                                 
+                        } catch (BadLocationException ex) {
+                             Logger.getLogger(Create.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                          evt.consume();
+                    }
+                    else  if (wordTrim.length() < 10 && wordTrim.length() > 0 && !wordTrim.equals("}")&& !wordTrim.equals("{")&& !wordTrim.equals("(")&& !wordTrim.equals(")")) {
+                        SimpleAttributeSet attributes = new SimpleAttributeSet(); 
+                        StyleConstants.setForeground(attributes,Color.RED);
+                        SimpleAttributeSet normal = new SimpleAttributeSet(); 
+                        StyleConstants.setForeground(normal,colorSelect);
+                        try {                                           
+                            tp.getStyledDocument().remove(start,word.length());              
+                        } catch (BadLocationException ex) {
+                            Logger.getLogger(Create.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        try {
+                             tp.getStyledDocument().insertString(start,"<"+wordTrim+"> "+" </"+wordTrim+">", attributes);                                                                    
+                             tp.getStyledDocument().insertString(tp.getStyledDocument().getLength()," ", normal); 
+                        } catch (BadLocationException ex) {
+                             Logger.getLogger(Create.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                          evt.consume();
+                    }                  
+                }                
+            }                                   
+            last =  evt.getKeyCode();
+        }else{
+            last =  0;
+            
+        }   
+    }
+    int count = 0;
+    public void keyReleased(java.awt.event.KeyEvent evt){
+        JTextPane pane = getEditor();
+        String key = Character.toString(evt.getKeyChar()) ;
+        String text = pane.getText();
+        SimpleAttributeSet attributes = new SimpleAttributeSet(); 
+        if (key.equals(" ")||key.equals("{")||key.equals("(")) {                                            
+            String[] lastWord = text.split("[" + Pattern.quote(" }{)(\n") + "]");
+            String word = lastWord[lastWord.length-1];
+            int start = text.lastIndexOf(word);
+
+            if (word.equalsIgnoreCase("java")||word.equalsIgnoreCase("public")||word.equalsIgnoreCase("private")||word.equalsIgnoreCase("protected")||word.equalsIgnoreCase("void")||word.equalsIgnoreCase("int")||word.equalsIgnoreCase("String")||word.equalsIgnoreCase("boolean")||word.equalsIgnoreCase("float")||word.equalsIgnoreCase("double")||word.equalsIgnoreCase("long")||word.equalsIgnoreCase("short")||word.equalsIgnoreCase("if")||word.equalsIgnoreCase("else")||word.equalsIgnoreCase("while")||word.equalsIgnoreCase("for")||word.equalsIgnoreCase("return")||word.equalsIgnoreCase("false")||word.equalsIgnoreCase("true")||word.equalsIgnoreCase("new")||word.equalsIgnoreCase("try")||word.equalsIgnoreCase("catch")||word.equalsIgnoreCase("this")||word.equalsIgnoreCase("extends")) {
+                
+                StyleConstants.setForeground(attributes,Color.BLUE);
+                SimpleAttributeSet normal = new SimpleAttributeSet(); 
+                StyleConstants.setForeground(normal,colorSelect);
+                try {                                           
+                    pane.getStyledDocument().remove(start,word.length());              
+                } catch (BadLocationException ex) {
+                    Logger.getLogger(Create.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                try {
+                     pane.getStyledDocument().insertString(start,word , attributes);                                         
+                     if (!key.equals(" ")) {
+                         pane.getStyledDocument().insertString(pane.getStyledDocument().getLength(),key , normal); 
+                     }else{
+                         pane.getStyledDocument().insertString(pane.getStyledDocument().getLength(),key , normal); 
+                     }
+                } catch (BadLocationException ex) {
+                     Logger.getLogger(Create.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }  
+        else if(key.equals("\"")){                
+                count++;
+               
+                String[] last = text.split("[" + Pattern.quote("\"") + "]");
+                String word = last[last.length-1];
+                int inicio = text.lastIndexOf(word);
+                if (count == 2) {
+                    count = 0;
+                    StyleConstants.setForeground(attributes,Color.GREEN);
+                     SimpleAttributeSet normal = new SimpleAttributeSet(); 
+                     StyleConstants.setForeground(normal,colorSelect);
+                    if (!Character.toString(text.charAt(inicio+1)).equals(key)) {
+                        try {                                           
+                            pane.getStyledDocument().remove(inicio,word.length());              
+                        } catch (BadLocationException ex) {
+                            
+                        }
+                        try {                                         
+                            pane.getStyledDocument().insertString(inicio, word, attributes);
+                            pane.getStyledDocument().insertString(pane.getStyledDocument().getLength(), " ", normal);
+                        } catch (BadLocationException ex) {
+                            Logger.getLogger(Create.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }                   
+                }
+            }
+    }
+    private void tpEditorKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tpEditorKeyReleased
+         keyReleased(evt);                  
+    }//GEN-LAST:event_tpEditorKeyReleased
     private static JPanel getTitlePanel(final JTabbedPane tabbedPane, final JPanel panel, String title){
          JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
          titlePanel.setOpaque(false);
