@@ -13,6 +13,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -27,11 +28,14 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
+import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -42,6 +46,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import javax.swing.JViewport;
+import javax.swing.KeyStroke;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.plaf.ComponentUI;
@@ -96,14 +101,15 @@ public class Create extends javax.swing.JFrame {
             }
             cbFontSize.addItem(i);
         }
+        btnNegrito.setMnemonic('n'); 
         cbFontSize.setSelectedIndex(12);
         cbFont.setSelectedIndex(2);
         tpAbas2.add(plAbas);
-        tpAbas2.setTabComponentAt(tpAbas2.indexOfComponent(plAbas), getTitlePanel(tpAbas2, plAbas, "arquivo1"));
+        
         this.setSize(650, 700); 
         tpAbas2.setSize(640, 690);
         tpAbas2.addTab("+", new JLabel());
-                
+        tpAbas2.setTabComponentAt(tpAbas2.indexOfComponent(plAbas), getTitlePanel(tpAbas2, plAbas, "arquivo"+(tpAbas2.getTabCount()-1)));
                  
                 final UndoManager undo = new UndoManager();                
                 Document doc = getEditor().getDocument();;                
@@ -146,7 +152,15 @@ public class Create extends javax.swing.JFrame {
         tpAbas2.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
-            if (tpAbas2.getSelectedComponent() instanceof JLabel) {                
+            iniciarTab(0);
+        }
+
+    }); 
+    
+}
+    public void iniciarTab(int i){
+        
+        if (tpAbas2.getSelectedComponent() instanceof JLabel|| i == 1) {                            
                 int count = tpAbas2.getTabCount();
                 
                 if (count < 11) {
@@ -185,7 +199,7 @@ public class Create extends javax.swing.JFrame {
                             .addContainerGap())
                     );
 
-                    setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+                  
                     getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.LINE_AXIS));
                     tpAbas2.add(panel);
                     tpAbas2.setTabComponentAt(tpAbas2.indexOfComponent(panel), getTitlePanel(tpAbas2, panel, "arquivo"+tpAbas2.getTabCount()));
@@ -254,11 +268,7 @@ public class Create extends javax.swing.JFrame {
                    });
                 }
             }
-
-        }
-
-    });       
-}
+    }
     
    
     /**
@@ -277,6 +287,8 @@ public class Create extends javax.swing.JFrame {
         jToolBar2 = new javax.swing.JToolBar();
         btn = new javax.swing.JButton();
         jSeparator5 = new javax.swing.JToolBar.Separator();
+        jButton2 = new javax.swing.JButton();
+        jSeparator11 = new javax.swing.JToolBar.Separator();
         btnSalvar = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JToolBar.Separator();
         lblDesfazer = new javax.swing.JButton();
@@ -298,7 +310,11 @@ public class Create extends javax.swing.JFrame {
         tpAbas2 = new javax.swing.JTabbedPane();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
+        mtNovo = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuItem3 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
 
         plAbas.setBackground(new java.awt.Color(234, 234, 234));
 
@@ -336,7 +352,7 @@ public class Create extends javax.swing.JFrame {
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setMinimumSize(new java.awt.Dimension(670, 300));
+        setMinimumSize(new java.awt.Dimension(750, 300));
         getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.LINE_AXIS));
 
         jPanel2.setBackground(new java.awt.Color(226, 231, 233));
@@ -357,6 +373,18 @@ public class Create extends javax.swing.JFrame {
         });
         jToolBar2.add(btn);
         jToolBar2.add(jSeparator5);
+
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/New File-32.png"))); // NOI18N
+        jButton2.setFocusable(false);
+        jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        jToolBar2.add(jButton2);
+        jToolBar2.add(jSeparator11);
 
         btnSalvar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/ic_save.png"))); // NOI18N
         btnSalvar.setToolTipText("salvar");
@@ -406,8 +434,8 @@ public class Create extends javax.swing.JFrame {
         jSeparator3.setMinimumSize(new java.awt.Dimension(12, 8));
         jToolBar2.add(jSeparator3);
 
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Color picker-32.png"))); // NOI18N
         jButton1.setMnemonic('w');
-        jButton1.setText("color");
         jButton1.setToolTipText("Selecione uma cor");
         jButton1.setFocusable(false);
         jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -475,18 +503,46 @@ public class Create extends javax.swing.JFrame {
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jToolBar2, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(tpAbas2, javax.swing.GroupLayout.DEFAULT_SIZE, 620, Short.MAX_VALUE)
+                .addComponent(jToolBar2, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(tpAbas2, javax.swing.GroupLayout.DEFAULT_SIZE, 608, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         getContentPane().add(jPanel2);
 
-        jMenu1.setText("File");
+        jMenu1.setText("arquivo");
+
+        mtNovo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_MASK));
+        mtNovo.setText("Novo");
+        mtNovo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mtNovoActionPerformed(evt);
+            }
+        });
+        jMenu1.add(mtNovo);
+
+        jMenuItem2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem2.setText("Abrir");
+        jMenu1.add(jMenuItem2);
+
+        jMenuItem3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem3.setText("Salvar");
+        jMenu1.add(jMenuItem3);
+
         jMenuBar1.add(jMenu1);
 
-        jMenu2.setText("Edit");
+        jMenu2.setText("Ajuda");
+
+        jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_M, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem1.setText("Sobre");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem1);
+
         jMenuBar1.add(jMenu2);
 
         setJMenuBar(jMenuBar1);
@@ -574,8 +630,7 @@ public class Create extends javax.swing.JFrame {
 
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         JFileChooser fc = new JFileChooser();
-        fc.showSaveDialog(this);
-        System.out.println(fc.getSelectedFile().getAbsoluteFile().getPath());
+        fc.showSaveDialog(this);        
         FileWriter txt;
         try{
             
@@ -591,7 +646,10 @@ public class Create extends javax.swing.JFrame {
     }//GEN-LAST:event_btnSalvarActionPerformed
 
     private void btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActionPerformed
-        JFileChooser fc = new JFileChooser();
+       open();
+    }//GEN-LAST:event_btnActionPerformed
+    public void open(){
+         JFileChooser fc = new JFileChooser();
         fc.showOpenDialog(this);
         String txt = "";
         String str = "";        
@@ -608,7 +666,7 @@ public class Create extends javax.swing.JFrame {
          } catch (IOException ex) {
              Logger.getLogger(Create.class.getName()).log(Level.SEVERE, null, ex);
          }
-    }//GEN-LAST:event_btnActionPerformed
+    }
     public JTextPane getEditor(){
         JPanel p =  (JPanel) tpAbas2.getComponentAt(tpAbas2.getSelectedIndex());
         Component[] x = p.getComponents();
@@ -622,7 +680,7 @@ public class Create extends javax.swing.JFrame {
             bold = true;
             styleFont(bold,under,italic,nomeFont,colorSelect,size,2);
         }else{
-            bold = true;
+            bold = false;
             styleFont(bold,under,italic,nomeFont,colorSelect,size,2);            
         }                         
     }//GEN-LAST:event_btnNegritoActionPerformed
@@ -663,9 +721,9 @@ public class Create extends javax.swing.JFrame {
             
             }            
             if (lastLetter != null) {
-                if (!lastLetter.equals(" ")&&last != 9&&!lastLetter.equals("<")&&!lastLetter.equals(">")&&!lastLetter.equals(")")&&!lastLetter.equals("(")&&!lastLetter.equals("|")&&!lastLetter.equals("+")) {                    
+                if (!lastLetter.equals(" ")&&last != 9&&!lastLetter.equals(")")&&!lastLetter.equals("(")&&!lastLetter.equals("|")&&!lastLetter.equals("+")) {                    
                     String text = tp.getText();
-                    String[] lastWord = text.split("[" + Pattern.quote(" \n/>=<)(") + "]");
+                    String[] lastWord = text.split("[" + Pattern.quote(" \n=)(") + "]");
                     String word = lastWord[lastWord.length-1];                    
                     String wordTrim = word.trim();
                     int start = text.lastIndexOf(wordTrim);
@@ -699,20 +757,22 @@ public class Create extends javax.swing.JFrame {
                         SimpleAttributeSet attributes = new SimpleAttributeSet(); 
                         StyleConstants.setForeground(attributes,Color.RED);
                         SimpleAttributeSet normal = new SimpleAttributeSet(); 
+                                  
                         StyleConstants.setForeground(normal,colorSelect);
                         try {                                           
                             tp.getStyledDocument().remove(start,word.length());              
                         } catch (BadLocationException ex) {
                             Logger.getLogger(Create.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                        try {
-                             tp.getStyledDocument().insertString(start,"<"+wordTrim+"> "+" </"+wordTrim+">", attributes);                                                                    
+                        try {                            
+                             tp.getStyledDocument().insertString(start,"<"+wordTrim+">", attributes);                                                                    
                              tp.getStyledDocument().insertString(tp.getStyledDocument().getLength()," ", normal); 
+                             tp.getStyledDocument().insertString(tp.getStyledDocument().getLength(),"</"+wordTrim+">", attributes);                                                                    
                         } catch (BadLocationException ex) {
                              Logger.getLogger(Create.class.getName()).log(Level.SEVERE, null, ex);
                         }
                           evt.consume();
-                    }                  
+                    }                                             
                 }                
             }                                   
             last =  evt.getKeyCode();
@@ -784,6 +844,18 @@ public class Create extends javax.swing.JFrame {
     private void tpEditorKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tpEditorKeyReleased
          keyReleased(evt);                  
     }//GEN-LAST:event_tpEditorKeyReleased
+
+    private void mtNovoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mtNovoActionPerformed
+        iniciarTab(1);
+    }//GEN-LAST:event_mtNovoActionPerformed
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        new Sobre().setVisible(true);
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        iniciarTab(1);
+    }//GEN-LAST:event_jButton2ActionPerformed
     private static JPanel getTitlePanel(final JTabbedPane tabbedPane, final JPanel panel, String title){
          JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
          titlePanel.setOpaque(false);
@@ -845,13 +917,18 @@ public class Create extends javax.swing.JFrame {
     private javax.swing.JComboBox cbFont;
     private javax.swing.JComboBox cbFontSize;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JToolBar.Separator jSeparator10;
+    private javax.swing.JToolBar.Separator jSeparator11;
     private javax.swing.JToolBar.Separator jSeparator2;
     private javax.swing.JToolBar.Separator jSeparator3;
     private javax.swing.JToolBar.Separator jSeparator4;
@@ -863,6 +940,7 @@ public class Create extends javax.swing.JFrame {
     private javax.swing.JToolBar jToolBar2;
     private javax.swing.JButton lblDesfazer;
     private javax.swing.JButton lblRefazer;
+    private javax.swing.JMenuItem mtNovo;
     private javax.swing.JPanel plAbas;
     private javax.swing.JTabbedPane tpAbas2;
     private javax.swing.JTextPane tpEditor;

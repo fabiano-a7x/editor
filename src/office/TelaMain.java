@@ -7,6 +7,13 @@ package office;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 /**
@@ -22,7 +29,10 @@ public class TelaMain extends javax.swing.JFrame {
         initComponents();
        lblOpen.addMouseListener(new MouseAdapter(){  
             public void mouseClicked(MouseEvent e){  
-                JOptionPane.showMessageDialog(rootPane,"helo");
+               TelaMain.this.dispose();                
+                Create c = new Create();
+                c.setVisible(true);
+                c.open();
             }  
         }); 
         lblNew.addMouseListener(new MouseAdapter(){  
@@ -35,7 +45,12 @@ public class TelaMain extends javax.swing.JFrame {
             public void mouseClicked(MouseEvent e){  
                 TelaMain.this.dispose();                
             }  
-        });   
+        }); 
+        lblHelp.addMouseListener(new MouseAdapter(){  
+            public void mouseClicked(MouseEvent e){  
+                JOptionPane.showMessageDialog(rootPane, "É só usar!");
+            }  
+        }); 
     }
 
     /**
@@ -57,7 +72,8 @@ public class TelaMain extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
-        jMenu2 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -152,15 +168,45 @@ public class TelaMain extends javax.swing.JFrame {
         getContentPane().add(jPanel2, java.awt.BorderLayout.PAGE_START);
 
         jMenu1.setText("arquivo");
-        jMenuBar1.add(jMenu1);
 
-        jMenu2.setText("ajuda");
-        jMenuBar1.add(jMenu2);
+        jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem1.setText("Novo");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem1);
+
+        jMenuItem2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem2.setText("Abrir");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem2);
+
+        jMenuBar1.add(jMenu1);
 
         setJMenuBar(jMenuBar1);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        new Create().setVisible(true); 
+        TelaMain.this.dispose();        
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        // TODO add your handling code here:
+        
+         Create c = new Create();
+         c.setVisible(true);
+         c.open();
+         TelaMain.this.dispose();
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
 
   
     /**
@@ -201,8 +247,9 @@ public class TelaMain extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel2;
     private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JLabel label;
